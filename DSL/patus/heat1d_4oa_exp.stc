@@ -1,0 +1,22 @@
+stencil Heat1D2oa (double grid A(0 .. x_max+2))
+{
+
+	domainsize = (2 .. x_max);
+
+  iterate while t < 10000;
+
+  //du/dt = k * (d2u/d2x) 
+  // Explicit method, du/dt is forward difference, rest is central
+
+	
+	operation
+	{
+    c1 = 1.0/12.0;
+    c2 = 4.0/3.0;
+    c3 = 5.0/2.0;
+
+    A[x; t+1] = 
+      A[x;t] +
+      0.125 * ( -c1*a[x-2;t] + c2*a[x-1;t] - c3*a[x;t] + c2*a[x+1;t] - c1*a[x+2;t])
+	}
+}

@@ -1,0 +1,19 @@
+stencil Lap1D2oa (
+    double grid A(0 .. x_max+1),
+    double param alpha,
+    double param beta)
+{
+	domainsize = (1 .. x_max);
+  iterate while t < 100000;
+
+  // du2/d2x = 
+
+	operation 
+	{
+		A[x; t+1] =
+			alpha * A[x;t] +
+			beta * (
+				A[x+1; t] + A[x-1; t]
+			);
+	}
+}

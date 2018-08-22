@@ -1,0 +1,13 @@
+This directory has the DSL specifications using PATUS for heat, wave, and laplace equations using 1D, 2D, 3D; explicit and implicit solvers; and 2nd, 3rd, and 4th degree of freedom implementations. Things to add still: implicit and 3rd/4th dof DSLs.
+
+The introductory paper to PATUS: https://engineering.purdue.edu/Cetus/cetusworkshop/papers/3-1.pdf
+Github for PATUS: https://github.com/matthias-christen/patus
+
+Example for heat3d_2oa.stc:
+
+make heat3d_2oa
+cd target/heat3d_2oa
+make bench
+make tune x_max=64 y_max=64 z_max=64
+
+

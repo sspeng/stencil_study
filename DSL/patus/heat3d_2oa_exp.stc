@@ -1,0 +1,20 @@
+stencil Heat2D2oa (double grid A(0 .. x_max+1, 0 .. y_max+1, 0 .. z_max+1))
+{
+
+	domainsize = (1 .. x_max, 1 .. y_max, 1 .. z_max);
+
+  iterate while t < 100;
+
+  //du/dt = k * (d2u/d2x + d2u/d2y + d2u/d2z) 
+  // Explicit method, du/dt is forward difference, rest is central
+
+	
+	operation
+	{
+    A[x,y,z; t+1] = 
+      A[x,y,z;t] +
+      0.125 * (A[x-1,y,z;t] - 2 * A[x,y,z;t] + A[x+1,y,z;t]) + 
+      0.125 * (A[x,y-1,z;t] - 2 * A[x,y,z;t] + A[x,y+1,z;t]) + 
+      0.125 * (A[x,y,z-1;t] - 2 * A[x,y,z;t] + A[x,y,z+1;t]);
+	}
+}

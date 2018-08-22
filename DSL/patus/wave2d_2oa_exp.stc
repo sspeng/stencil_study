@@ -1,0 +1,40 @@
+stencil wave1D2oa (
+    double grid A(0 .. x_max+1, 0 .. y_max+1),
+    float param fMin = -1,
+    float param fDX = 2 / (x_max-3),
+    float param fDT_DX_sq = 0.25)
+
+{
+
+	domainsize = (1 .. x_max, 1 .. y_max);
+
+  iterate while t < 1000;
+
+  //d2u/d2t = k * (d2u/d2x) 
+  // Explicit method, All central differences
+
+//  A[x;t-1] - 2 * A[x;t] + A[x;t+1] = c1 * (A[x-1;t] - 2 * A[x;t] + A[x+1;t]);
+//    
+//    A[x;t+1] = c1 * (A[x-1;t] - 2 * A[x;t] + A[x+1;t])
+//       + 2 * A[x;t] - A[x;t-1];
+//
+  initial
+  {
+    A[x, y; -1] = sinf (2*π * ((x-1) * fDX + fMin)) * sinf (2*π * ((y-1) * fDX + fMin));
+    A[x, y; -1 : x==0 || x==x_max-1 || y==0 || y==y_max-1 ] = 0;
+    A[x, y; 0] = A[x,y; -1];
+    A[x, y; 1] = 0;
+  }
+	
+	operation
+	{
+    A[x,y;t+1] = 0.125 * (
+          (A[x-1,y;t] - 2 * A[x,y;t] + A[x+1,y;t]) +
+          (A[x,y-1;t] - 2 * A[x,y;t] + A[x,y+1;t])
+      ) + 2 * A[x,y;t] - A[x,y;t-1];
+
+//    A[x; t+1] = 
+//      A[x;t] +
+//      0.125 * (A[x-1;t] - 2 * A[x;t] + A[x+1;t]);
+	}
+}

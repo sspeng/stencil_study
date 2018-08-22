@@ -27,5 +27,8 @@ heat1d_2oa_exp : heat1d_2oa_exp.cpp
 heat2d_2oa_exp : heat2d_2oa_exp.cpp
 	${CC} -o xheat_2d_exp ${OPT_FLAGS} heat2d_2oa_exp.cpp
 
+heat3d_2oa_exp : heat3d_2oa_exp.cpp
+	${CC} -o xheat_3d_exp ${OPT_FLAGS} heat3d_2oa_exp.cpp
+
 clean: 
 	rm -f *.o *.i *_pochoir *_gdb *_pochoir.cpp *.out

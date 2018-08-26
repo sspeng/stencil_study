@@ -67,6 +67,10 @@ int main(int argc, char** argv)
     }
 
 
+    double sc1 = 1.0/12.0;
+    double sc2 = 4.0/3.0;
+    double sc3 = 5.0/2.0;
+
     /* do the calculation */ 
     t1 = seconds();
     for (t = 0; t < T_MAX; t++)
@@ -76,11 +80,9 @@ int main(int argc, char** argv)
       {
         for (x = 1; x < x_max - 1; x++)
         {
-          u_0_1[IDX(x, y)] = u_0_0[IDX(x, y)] +
-            0.125 * (
-                u_0_0[IDX(x+1, y)] -2*u_0_0[IDX(x,y)] + u_0_0[IDX(x-1, y)] +
-                u_0_0[IDX(x, y+1)] -2*u_0_0[IDX(x,y)] + u_0_0[IDX(x, y-1)]);
-
+          u_0_1[IDX(x, y)] = u_0_0[IDX(x, y)]
+            + 0.125 * (-c1*u_0_0[IDX(x+2,y)] + c2*u_0_0[IDX(x+1, y)] -c3*u_0_0[IDX(x,y)] + c2*u_0_0[IDX(x-1, y)] -c3*u_0_0[IDX(x-2,y)])
+            + 0.125 * (-c1*u_0_0[IDX(x,y+2)] + c2*u_0_0[IDX(x, y+1)] -c3*u_0_0[IDX(x,y)] + c2*u_0_0[IDX(x, y-1)] -c3*u_0_0[IDX(x,y-2)])
         }
       }
 

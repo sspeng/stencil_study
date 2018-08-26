@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     float* __restrict__ u_0_0 = NULL;
     float* __restrict__ u_0_1 = NULL;
 
-	if (argc != 4)
+	if (argc != 5)
 	{
 		printf ("Wrong number of parameters. Syntax:\n%s <x_max> <y_max> <z_max>\n", argv[0]);
 		exit (-1);
@@ -75,8 +75,7 @@ int main(int argc, char** argv)
 	int x_max = atoi (argv[1]) + 4;
 	int y_max = atoi (argv[2]) + 4;
 	int z_max = atoi (argv[3]) + 4;
-
-	const int T_MAX = 5;
+	int T_MAX = atoi (argv[4]);
 
 	const float MIN = -1.f;
 	const float MAX = 1.f;

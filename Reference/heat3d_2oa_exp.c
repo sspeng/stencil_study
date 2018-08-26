@@ -29,15 +29,14 @@ int main(int argc, char** argv)
     int x_max, y_max, z_max;
     int i, j, k, t;
     int x, y, z;
+    int T_MAX;
     double t1, t2, nFlops;
 
     float* __restrict__ u_0_0 = NULL;
     float* __restrict__ u_0_1 = NULL;
     float alpha, beta;
 
-	const int T_MAX = 5;
-
-	if (argc != 4)
+	if (argc != 5)
 	{
 		printf ("Wrong number of parameters.\n", argv[0]);
 		exit (-1);
@@ -46,6 +45,7 @@ int main(int argc, char** argv)
 	x_max = atoi (argv[1]);
 	y_max = atoi (argv[2]);
 	z_max = atoi (argv[3]);
+	T_MAX = atoi (argv[3]);
 
  
     /* allocate memory */

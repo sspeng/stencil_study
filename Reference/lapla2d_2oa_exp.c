@@ -34,9 +34,9 @@ int main(int argc, char** argv)
     float* __restrict__ u_0_1 = NULL;
     float alpha, beta;
 
-	const int T_MAX = 5;
+	int T_MAX;
 
-	if (argc != 4)
+	if (argc != 5)
 	{
 		printf ("Wrong number of parameters.\n", argv[0]);
 		exit (-1);
@@ -45,6 +45,7 @@ int main(int argc, char** argv)
 	x_max = atoi (argv[1]);
 	y_max = atoi (argv[2]);
 	z_max = atoi (argv[3]);
+	T_MAX = atoi (argv[4]);
 
  
     /* allocate memory */

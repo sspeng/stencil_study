@@ -1,4 +1,4 @@
-CC=gcc
+CC=icc
 CFLAGS=-O3
 LDFLAGS=-lm
 REF_TEST_DIR=#!date +%Y_%m_%d:%H_%M
@@ -11,8 +11,10 @@ lapla_2oa_exp: lapla1d_2oa_exp lapla2d_2oa_exp lapla3d_2oa_exp
 heat_4oa_exp: heat1d_4oa_exp heat2d_4oa_exp heat3d_4oa_exp
 wave_4oa_exp: wave1d_4oa_exp wave2d_4oa_exp wave3d_4oa_exp
 
+2oa_exp: heat_2oa_exp wave_2oa_exp lapla_2oa_exp
+4oa_exp: heat_4oa_exp wave_4oa_exp
 
-all: heat_2oa_exp wave_2oa_exp lapla_2oa_exp
+all: 2oa_exp 4oa_exp
 
 prepare:
 	mkdir -p target

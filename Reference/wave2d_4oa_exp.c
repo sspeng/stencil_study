@@ -217,7 +217,7 @@ const float MIN = -1.f; const float MAX = 1.f;
 	t2 = seconds ();
 
     /* print statistics */    
-    nFlops = (double) (x_max-4) * T_MAX * 5.0;
+    nFlops = (double) (x_max-4) * (double) (y_max-4) * T_MAX * 22.0;
     printf ("FLOPs in stencil code:      %e\n", nFlops);    
 	printf ("Time spent in stencil code: %f\n", t2 - t1);
 	printf ("Performance in GFlop/s:     %f\n", nFlops / (1e9 * (t2 -t1)));

@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 	for (t = 0; t < T_MAX; t++)
 	{
 		#pragma omp parallel for private(z,y,x)
-    for (x = 1; x < x_max - 1; x++)
+    for (x = 2; x < x_max - 2; x++)
     {
       u_0_1[IDX(x)] = u_0_0[IDX(x)] +
             0.125 * 
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	t2 = seconds ();
 
     /* print statistics */    
-    nFlops = (double) (x_max-2) * T_MAX * 10.0;
+    nFlops = (double) (x_max-4) * T_MAX * 11.0;
     printf ("FLOPs in stencil code:      %e\n", nFlops);    
 	printf ("Time spent in stencil code: %f\n", t2 - t1);
 	printf ("Performance in GFlop/s:     %f\n", nFlops / (1e9 * (t2 -t1)));

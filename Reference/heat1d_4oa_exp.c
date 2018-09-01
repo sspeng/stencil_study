@@ -35,9 +35,9 @@ int main(int argc, char** argv)
     float* __restrict__ u_0_1 = NULL;
     float alpha, beta;
 
-	const int T_MAX = 5;
+	int T_MAX;
 
-	if (argc != 4)
+	if (argc != 5)
 	{
 		printf ("Wrong number of parameters.\n", argv[0]);
 		exit (-1);
@@ -46,6 +46,7 @@ int main(int argc, char** argv)
 	x_max = atoi (argv[1]);
 	y_max = atoi (argv[2]);
 	z_max = atoi (argv[3]);
+	T_MAX = atoi (argv[4]);
 
  
     /* allocate memory */
@@ -77,7 +78,7 @@ int main(int argc, char** argv)
     {
       u_0_1[IDX(x)] = u_0_0[IDX(x)] +
             0.125 * 
-            (-sc1*u_0_0[IDX(x-2)] + sc2*u_0_0[IDX(x-1)] - sc3*u_0_0[IDX(x)] + sc2*u_0_0[IDX(x+1)] - sc1[IDX(x+2)]);
+            (-sc1*u_0_0[IDX(x-2)] + sc2*u_0_0[IDX(x-1)] - sc3*u_0_0[IDX(x)] + sc2*u_0_0[IDX(x+1)] - sc1*u_0_0[IDX(x+2)]);
     }
 
     	float* tmp = u_0_0;

@@ -1,3 +1,21 @@
+/*
+ * Reference for wave three-dimensional 2nd order accurate explicit method
+ *
+ * Original equation: U_tt = U_xx + U_yy + U_zz
+ * Solved by: u(t+1,x,y,z) = 2u(t,x,y,z) - u(t-1,x,y,z)
+ *  + (u(t,x-1,y,z) - 2(t,x,y,z) + u(t,x+1,y,z))
+ *  + (u(t,x,y-1,z) - 2(t,x,y,z) + u(t,x,y+1,z))
+ *  + (u(t,x,y,z-1) - 2(t,x,y,z) + u(t,x,y,z+1))
+ *
+ *
+ * @author Brandon Nesterenko (bnestere@uccs.edu)
+ * @date 8-26-2018
+ */
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+#include <sys/time.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -32,19 +50,20 @@ double seconds ()
  */
 void write (float* u, int timestep, int x_max, int y_max, int z_max)
 {
-	int i, j;
+	int i, j, k;
 	char szFilename[255];
 	sprintf (szFilename, "%04d.txt", timestep);
 	printf ("Writing file %s...\n", szFilename);
 	FILE* file = fopen (szFilename, "w");
-
-	const int k = z_max / 3;
-	for (j = 0; j < y_max; j++)
-	{
-		for (i = 0; i < x_max; i++)
-			fprintf (file, "%f ", u[IDX(i,j,k)]);
-		fprintf (file, "\n");
-	}
+  for (k = 0; k < z_max; k++)
+  {
+    for (j = 0; j < y_max; j++)
+    {
+      for (i = 0; i < x_max; i++)
+        fprintf (file, "%f ", u[IDX(i,j,k)]);
+      fprintf (file, "\n");
+    }
+  }
 
 	fclose (file);
 }
@@ -191,7 +210,7 @@ int main(int argc, char** argv)
       {
         for (i = 2; i < x_max - 2; i++)
         {
-          u_0_1[IDX(i,j,k)] =  0.125 * (
+          u_0_1[IDX(i,j,k)] =  (
               u_0_0[IDX(i-1,j,k)] - 2*u_0_0[IDX(i,j,k)] + u_0_0[IDX(i,j,k+1)] + 
               u_0_0[IDX(i,j-1,k)] - 2*u_0_0[IDX(i,j,k)] + u_0_0[IDX(i,j+1,k)] + 
               u_0_0[IDX(i,j,k-1)] - 2*u_0_0[IDX(i,j,k)] + u_0_0[IDX(i,j,k+1)]

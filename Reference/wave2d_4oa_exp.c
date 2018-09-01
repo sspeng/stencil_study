@@ -1,9 +1,10 @@
 /*
- * Reference for wave one-dimensional 2nd order accurate (spatial) explicit method
+ * Reference for wave two-dimensional 4th order accurate (spatial) explicit method
  *
- * Original equation: U_tt = U_xx
- * Solved by: u(t+1,x) = 2u(t,x) - u(t-1,x)
- *  + (u(t,x-1) - 2(t,x) + u(t,x+1))
+ * Original equation: U_tt = U_xx + U_yy
+ * Solved by: u(t+1,x,y) = 2u(t,x,y) - u(t-1,x,y)
+ *  + (-1/12u(t,x-2,y) + 4/3u(t,x-1,y) - 5/2(t,x,y) + 4/3u(t,x+1,y) - 1/12u(t,x+2,y))  
+ *  + (-1/12u(t,x,y-2) + 4/3u(t,x,y-1) - 5/2(t,x,y) + 4/3u(t,x,y+1) - 1/12u(t,x,y+2))  
  *
  *
  * @author Brandon Nesterenko (bnestere@uccs.edu)
@@ -16,9 +17,8 @@
 #include <math.h>
 #include <sys/time.h>
 
-//#define WRITE_OUTPUT
 #define NONUMA
-#define IDX(i) (i)
+#define IDX(i,j) ((i)+x_max*((j)))
 //#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
 
 #ifndef M_PI
@@ -52,8 +52,12 @@ void write (float* u, int timestep, int x_max, int y_max, int z_max)
 	FILE* file = fopen (szFilename, "w");
 
 	const int k = z_max / 3;
-  for (i = 0; i < x_max; i++)
-    fprintf (file, "%f ", u[IDX(i)]);
+  for (j = 0; j < y_max; j++)
+  {
+    for (i = 0; i < x_max; i++)
+      fprintf (file, "%f ", u[IDX(i,j)]);
+    fprintf (file, "\n");
+  }
 
 	fclose (file);
 }
@@ -119,62 +123,86 @@ const float MIN = -1.f; const float MAX = 1.f;
 	memset (u_0_1, 0, x_max * sizeof (float));
 #endif
 
-	#pragma omp parallel for private (k,j,i)
-			for (i = 2; i < x_max - 2; i++)
-			{
-				float x = (i - 1) * DX + MIN;
+#pragma omp parallel for private (k,j,i)
+  for (j = 2; j < y_max - 2; j++)
+  {
+    for (i = 2; i < x_max - 2; i++)
+    {
+      float x = (i - 1) * DX + MIN;
+      float y = (j - 1) * DX + MIN;
 
 #ifndef NONUMA
-				if (i == 2)
-				{
-					u_0_m1[IDX(0)] = 0;
-					u_0_m1[IDX(1)] = 0;
-					u_0_0[ IDX(0)] = 0;
-					u_0_0[ IDX(1)] = 0;
-				}
-				if (i == x_max - 3)
-				{
-					u_0_m1[IDX(x_max - 2, j, k)] = 0;
-					u_0_m1[IDX(x_max - 1, j, k)] = 0;
-					u_0_0[IDX(x_max - 2, j, k)] = 0;
-					u_0_0[IDX(x_max - 1, j, k)] = 0;
-				}
+      if (j == 2)
+      {
+        u_0_m1[IDX(i, 0)] = 0;
+        u_0_m1[IDX(i, 1)] = 0;
+        u_0_0[IDX(i, 0)] = 0;
+        u_0_0[IDX(i, 1)] = 0;
+      }
+      if (j == y_max - 3)
+      {
+        u_0_m1[IDX(i, y_max - 2)] = 0;
+        u_0_m1[IDX(i, y_max - 1)] = 0;
+        u_0_0[IDX(i, y_max - 2)] = 0;
+        u_0_0[IDX(i, y_max - 1)] = 0;
+      }
+      if (i == 2)
+      {
+        u_0_m1[IDX(0, j)] = 0;
+        u_0_m1[IDX(1, j)] = 0;
+        u_0_0[IDX(0, j)] = 0;
+        u_0_0[IDX(1, j)] = 0;
+      }
+      if (i == x_max - 3)
+      {
+        u_0_m1[IDX(x_max - 2, j)] = 0;
+        u_0_m1[IDX(x_max - 1, j)] = 0;
+        u_0_0[IDX(x_max - 2, j)] = 0;
+        u_0_0[IDX(x_max - 1, j)] = 0;
+      }
 #endif
 
-        u_0_0[IDX(i)] = (float) (sin (2 * M_PI * x));
-        u_0_m1[IDX(i)] = u_0_0[IDX(i)];
-			}
+      u_0_0[IDX(i,j)] = (float) (sin (2 * M_PI * x) * sin(2 * M_PI * y));
+      u_0_m1[IDX(i,j)] = u_0_0[IDX(i,j)];
+    }
+  }
 	
 #ifdef WRITE_OUTPUT
     write (u_0_0, 0, x_max, y_max, z_max);
 #endif	
 
-	const float c1 = 2.0f - DT_DX_SQUARE * 7.5f;
-	const float c2 = DT_DX_SQUARE * 4.0f / 3.0f;
-	const float c3 = DT_DX_SQUARE * (-1.0f/ 12.0f);
+
+    double sc1 = 1.0/12;
+    double sc2 = 4.0/3.0;
+    double sc3 = 5.0/2.0;
 
     /* do the calculation */ 
-	t1 = seconds();
-	for (t = 0; t < T_MAX; t++)
-	{
-		#pragma omp parallel for private(k,j,i)
-    for (i = 2; i < x_max - 2; i++)
+    t1 = seconds();
+    for (t = 0; t < T_MAX; t++)
     {
+#pragma omp parallel for private(k,j,i)
+      for (j = 2; j < y_max - 2; j++)
+      {
+        for (i = 2; i < x_max - 2; i++)
+        {
 
-      u_0_1[i] = (u_0_0[i-1]  - (2 * u_0_0[i]) + u_0_0[i+1])
-        + (2*u_0_0[i]) - u_0_m1[i];
+          u_0_1[IDX(i,j)] = 
+            (-sc1*u_0_0[IDX(i-2,j)] +  sc2*u_0_0[IDX(i-1,j)] - sc3* u_0_0[IDX(i,j)] + sc2*u_0_0[IDX(i+1,j)] - sc1*u_0_0[IDX(i+2,j)])
+            + (-sc1*u_0_0[IDX(i,j-2)] +  sc2*u_0_0[IDX(i,j-1)] - sc3* u_0_0[IDX(i,j)] + sc2*u_0_0[IDX(i,j+1)] - sc1*u_0_0[IDX(i,j+2)])
+            + (2*u_0_0[IDX(i,j)]) - u_0_m1[IDX(i,j)];
 
 
-      // Original 3d
-//      u_0_1[IDX(i,j,k)] =  c1 * u_0_0[IDX(i,j,k)] - u_0_m1[IDX(i,j,k)] +
-//        + c2 * (
-//            u_0_0[IDX(i+1,j,k)] + u_0_0[IDX(i-1,j,k)]+
-//            u_0_0[IDX(i,j+1,k)] + u_0_0[IDX(i,j-1,k)]+
-//            u_0_0[IDX(i,j,k+1)] + u_0_0[IDX(i,j,k-1)])
-//        + c3 * (
-//            u_0_0[IDX(i+2,j,k)] + u_0_0[IDX(i-2,j,k)]+
-//            u_0_0[IDX(i,j+2,k)] + u_0_0[IDX(i,j-2,k)]+
-//            u_0_0[IDX(i,j,k+2)] + u_0_0[IDX(i,j,k-2)]);
+          // Original 3d
+          //      u_0_1[IDX(i,j,k)] =  c1 * u_0_0[IDX(i,j,k)] - u_0_m1[IDX(i,j,k)] +
+          //        + c2 * (
+          //            u_0_0[IDX(i+1,j,k)] + u_0_0[IDX(i-1,j,k)]+
+          //            u_0_0[IDX(i,j+1,k)] + u_0_0[IDX(i,j-1,k)]+
+          //            u_0_0[IDX(i,j,k+1)] + u_0_0[IDX(i,j,k-1)])
+          //        + c3 * (
+          //            u_0_0[IDX(i+2,j,k)] + u_0_0[IDX(i-2,j,k)]+
+          //            u_0_0[IDX(i,j+2,k)] + u_0_0[IDX(i,j-2,k)]+
+          //            u_0_0[IDX(i,j,k+2)] + u_0_0[IDX(i,j,k-2)]);
+        }
     }
 
 #ifdef WRITE_OUTPUT

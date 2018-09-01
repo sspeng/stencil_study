@@ -1,24 +1,24 @@
 /*
- * Reference for wave two-dimensional 2nd order accurate explicit method
+ * Reference for wave one-dimensional 4th order accurate (spatial) explicit method
  *
- * Original equation: U_tt = U_xx + U_yy
- * Solved by: u(t+1,x,y) = 2u(t,x,y) - u(t-1,x,y)
- *  + (u(t,x-1,y) - 2(t,x,y) + u(t,x+1,y))
- *  + (u(t,x,y-1) - 2(t,x,y) + u(t,x,y+1))
+ * Original equation: U_tt = U_xx
+ * Solved by: u(t+1,0) = 2u(t,x) - u(t-1,x)
+ *  + (-1/12u(t,x-2) + 4/3u(t,x-1) - 5/2(t,x) + 4/3u(t,x+1) - 1/12u(t,x+2))  
  *
  *
  * @author Brandon Nesterenko (bnestere@uccs.edu)
  * @date 8-26-2018
  */
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
 #include <sys/time.h>
 
-//#define WRITE_OUTPUT
 #define NONUMA
-#define IDX(i,j) ((i)+x_max*((j)))
+#define IDX(i) (i)
+//#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
 
 #ifndef M_PI
 #	define M_PI 3.14159265358979323846
@@ -50,12 +50,9 @@ void write (float* u, int timestep, int x_max, int y_max, int z_max)
 	printf ("Writing file %s...\n", szFilename);
 	FILE* file = fopen (szFilename, "w");
 
-	for (j = 0; j < y_max; j++)
-	{
-		for (i = 0; i < x_max; i++)
-			fprintf (file, "%f ", u[IDX(i,j)]);
-		fprintf (file, "\n");
-	}
+	const int k = z_max / 3;
+  for (i = 0; i < x_max; i++)
+    fprintf (file, "%f ", u[IDX(i)]);
 
 	fclose (file);
 }
@@ -71,7 +68,7 @@ int malloc_error (const char* err)
  */
 int main(int argc, char** argv)
 {
-    int i, j, k, t;
+    int i=0, j=0, k=0, t;
     double t1, t2, nFlops;
 
     float* __restrict__ u_0_m1 = NULL;
@@ -89,8 +86,7 @@ int main(int argc, char** argv)
 	int z_max = atoi (argv[3]) + 4;
 	int T_MAX = atoi (argv[4]);
 
-	const float MIN = -1.f;
-	const float MAX = 1.f;
+const float MIN = -1.f; const float MAX = 1.f;
 	const float DX = (MAX - MIN) / (x_max - 3);
 	const float DT = DX / 2.0f;
 
@@ -117,87 +113,68 @@ int main(int argc, char** argv)
 
     /* initialize the first timesteps */
 #ifdef NONUMA
-	memset (u_0_m1, 0, x_max * y_max * z_max * sizeof (float));
-	memset (u_0_0, 0, x_max * y_max * z_max * sizeof (float));
-	memset (u_0_1, 0, x_max * y_max * z_max * sizeof (float));
+	memset (u_0_m1, 0,x_max * sizeof (float));
+	memset (u_0_0, 0, x_max * sizeof (float));
+	memset (u_0_1, 0, x_max * sizeof (float));
 #endif
 
 	#pragma omp parallel for private (k,j,i)
-		for (j = 2; j < y_max - 2; j++)
-		{
 			for (i = 2; i < x_max - 2; i++)
 			{
 				float x = (i - 1) * DX + MIN;
-				float y = (j - 1) * DX + MIN;
 
 #ifndef NONUMA
-				if (j == 2)
-				{
-					u_0_m1[IDX(i, 0)] = 0;
-					u_0_m1[IDX(i, 1)] = 0;
-					u_0_0[IDX(i, 0)] = 0;
-					u_0_0[IDX(i, 1)] = 0;
-				}
-				if (j == y_max - 3)
-				{
-					u_0_m1[IDX(i, y_max - 2)] = 0;
-					u_0_m1[IDX(i, y_max - 1)] = 0;
-					u_0_0[IDX(i, y_max - 2)] = 0;
-					u_0_0[IDX(i, y_max - 1)] = 0;
-				}
 				if (i == 2)
 				{
-					u_0_m1[IDX(0, j)] = 0;
-					u_0_m1[IDX(1, j)] = 0;
-					u_0_0[IDX(0, j)] = 0;
-					u_0_0[IDX(1, j)] = 0;
+					u_0_m1[IDX(0)] = 0;
+					u_0_m1[IDX(1)] = 0;
+					u_0_0[ IDX(0)] = 0;
+					u_0_0[ IDX(1)] = 0;
 				}
 				if (i == x_max - 3)
 				{
-					u_0_m1[IDX(x_max - 2, j)] = 0;
-					u_0_m1[IDX(x_max - 1, j)] = 0;
-					u_0_0[IDX(x_max - 2, j)] = 0;
-					u_0_0[IDX(x_max - 1, j)] = 0;
+					u_0_m1[IDX(x_max - 2, j, k)] = 0;
+					u_0_m1[IDX(x_max - 1, j, k)] = 0;
+					u_0_0[IDX(x_max - 2, j, k)] = 0;
+					u_0_0[IDX(x_max - 1, j, k)] = 0;
 				}
 #endif
 
-	        	u_0_0[IDX(i,j)] = (float) (sin (2 * M_PI * x) * sin(2 * M_PI * y));
-	         	u_0_m1[IDX(i,j)] = u_0_0[IDX(i,j)];
+        u_0_0[IDX(i)] = (float) (sin (2 * M_PI * x));
+        u_0_m1[IDX(i)] = u_0_0[IDX(i)];
 			}
-		}
 	
 #ifdef WRITE_OUTPUT
     write (u_0_0, 0, x_max, y_max, z_max);
 #endif	
 
-	const float c1 = 2.0f - DT_DX_SQUARE * 7.5f;
-	const float c2 = DT_DX_SQUARE * 4.0f / 3.0f;
-	const float c3 = DT_DX_SQUARE * (-1.0f/ 12.0f);
+
+    double sc1 = 1.0/12;
+    double sc2 = 4.0/3.0;
+    double sc3 = 5.0/2.0;
 
     /* do the calculation */ 
 	t1 = seconds();
 	for (t = 0; t < T_MAX; t++)
 	{
 		#pragma omp parallel for private(k,j,i)
-    for (j = 2; j < y_max - 2; j++)
+    for (i = 2; i < x_max - 2; i++)
     {
-      for (i = 2; i < x_max - 2; i++)
-      {
-        u_0_1[IDX(i,j)] =  (
-            u_0_0[IDX(i-1,j)] - 2*u_0_0[IDX(i,j)] + u_0_0[IDX(i+1,j)] +
-            u_0_0[IDX(i,j-1)] - 2*u_0_0[IDX(i,j)] + u_0_0[IDX(i,j+1)]
-            )
-          +2*u_0_0[IDX(i,j)] - u_0_m1[IDX(i,j)];
-//        u_0_1[IDX(i,j,k)] =  c1 * u_0_0[IDX(i,j,k)] - u_0_m1[IDX(i,j,k)] +
-//          + c2 * (
-//              u_0_0[IDX(i+1,j,k)] + u_0_0[IDX(i-1,j,k)]+
-//              u_0_0[IDX(i,j+1,k)] + u_0_0[IDX(i,j-1,k)]+
-//              u_0_0[IDX(i,j,k+1)] + u_0_0[IDX(i,j,k-1)])
-//          + c3 * (
-//              u_0_0[IDX(i+2,j,k)] + u_0_0[IDX(i-2,j,k)]+
-//              u_0_0[IDX(i,j+2,k)] + u_0_0[IDX(i,j-2,k)]+
-//              u_0_0[IDX(i,j,k+2)] + u_0_0[IDX(i,j,k-2)]);
-      }
+
+      u_0_1[IDX(i)] = (-sc1*u_0_0[IDX(i-2)] +  sc2*u_0_0[IDX(i-1)] - sc3* u_0_0[IDX(i)] + sc2*u_0_0[IDX(i+1)] - sc1*u_0_0[IDX(i+2)])
+        + (2*u_0_0[IDX(i)]) - u_0_m1[IDX(i)];
+
+
+      // Original 3d
+//      u_0_1[IDX(i,j,k)] =  c1 * u_0_0[IDX(i,j,k)] - u_0_m1[IDX(i,j,k)] +
+//        + c2 * (
+//            u_0_0[IDX(i+1,j,k)] + u_0_0[IDX(i-1,j,k)]+
+//            u_0_0[IDX(i,j+1,k)] + u_0_0[IDX(i,j-1,k)]+
+//            u_0_0[IDX(i,j,k+1)] + u_0_0[IDX(i,j,k-1)])
+//        + c3 * (
+//            u_0_0[IDX(i+2,j,k)] + u_0_0[IDX(i-2,j,k)]+
+//            u_0_0[IDX(i,j+2,k)] + u_0_0[IDX(i,j-2,k)]+
+//            u_0_0[IDX(i,j,k+2)] + u_0_0[IDX(i,j,k-2)]);
     }
 
 #ifdef WRITE_OUTPUT
@@ -212,7 +189,7 @@ int main(int argc, char** argv)
 	t2 = seconds ();
 
     /* print statistics */    
-    nFlops = (double) (x_max-4) * (double) (y_max-4) * T_MAX * 9.0;
+    nFlops = (double) (x_max-4) * T_MAX * 5.0;
     printf ("FLOPs in stencil code:      %e\n", nFlops);    
 	printf ("Time spent in stencil code: %f\n", t2 - t1);
 	printf ("Performance in GFlop/s:     %f\n", nFlops / (1e9 * (t2 -t1)));

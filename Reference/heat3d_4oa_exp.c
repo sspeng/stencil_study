@@ -4,7 +4,7 @@
 #include <math.h>
 #include <sys/time.h>
 
-#define IDX(i,j) ((i)+x_max*((j)))
+#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
 
 #if defined(_OPENMP)
 #	include <omp.h>
@@ -50,23 +50,25 @@ int main(int argc, char** argv)
 
  
     /* allocate memory */
-    u_0_0 = (float*) malloc (x_max * y_max * sizeof (float));
-    u_0_1 = (float*) malloc (x_max * y_max * sizeof (float));
+    u_0_0 = (float*) malloc (x_max * y_max * z_max * sizeof (float));
+    u_0_1 = (float*) malloc (x_max * y_max * z_max * sizeof (float));
 
     alpha = 1.f / (float) x_max;
     beta = 2.f / (float) y_max;
 
     /* initialize the first timesteps */
 	#pragma omp parallel for private (k,j,i)
-    for (j = 0; j < y_max; j++)
+    for (k = 0; k < y_max; k++)
     {
-      for (i = 0; i < x_max; i++)
+      for (j = 0; j < y_max; j++)
       {
-        u_0_0[IDX(i,j)] = 1. + i*0.1 + j*0.01;
-        u_0_1[IDX(i,j)] = 2. + i*0.1 + j*0.01;
+        for (i = 0; i < x_max; i++)
+        {
+          u_0_0[IDX(i,j,k)] = 1. + i*0.1 + j*0.01 + k*0.001;
+          u_0_1[IDX(i,j,k)] = 2. + i*0.1 + j*0.01 + k*0.001;
+        }
       }
     }
-
 
     double sc1 = 1.0/12.0;
     double sc2 = 4.0/3.0;
@@ -77,13 +79,17 @@ int main(int argc, char** argv)
     for (t = 0; t < T_MAX; t++)
     {
 #pragma omp parallel for private(z,y,x)
-      for (y = 1; y < y_max - 1; y++)
+      for (z = 1; z < z_max - 1; z++)
       {
-        for (x = 1; x < x_max - 1; x++)
+        for (y = 1; y < y_max - 1; y++)
         {
-          u_0_1[IDX(x, y)] = u_0_0[IDX(x, y)]
-            + 0.125 * (-sc1*u_0_0[IDX(x+2,y)] + sc2*u_0_0[IDX(x+1, y)] -sc3*u_0_0[IDX(x,y)] + sc2*u_0_0[IDX(x-1, y)] -sc3*u_0_0[IDX(x-2,y)])
-            + 0.125 * (-sc1*u_0_0[IDX(x,y+2)] + sc2*u_0_0[IDX(x, y+1)] -sc3*u_0_0[IDX(x,y)] + sc2*u_0_0[IDX(x, y-1)] -sc3*u_0_0[IDX(x,y-2)]);
+          for (x = 1; x < x_max - 1; x++)
+          {
+            u_0_1[IDX(x, y,z)] = u_0_0[IDX(x, y,z)]
+              + 0.125 * (-sc1*u_0_0[IDX(x+2,y,z)] + sc2*u_0_0[IDX(x+1, y,z)] -sc3*u_0_0[IDX(x,y,z)] + sc2*u_0_0[IDX(x-1, y,z)] -sc3*u_0_0[IDX(x-2,y,z)])
+              + 0.125 * (-sc1*u_0_0[IDX(x,y+2,z)] + sc2*u_0_0[IDX(x, y+1,z)] -sc3*u_0_0[IDX(x,y,z)] + sc2*u_0_0[IDX(x, y-1,z)] -sc3*u_0_0[IDX(x,y-2,z)])
+              + 0.125 * (-sc1*u_0_0[IDX(x,y,z+2)] + sc2*u_0_0[IDX(x, y,z+1)] -sc3*u_0_0[IDX(x,y,z)] + sc2*u_0_0[IDX(x, y,z-1)] -sc3*u_0_0[IDX(x,y,z-2)]);
+          }
         }
       }
 
@@ -94,7 +100,7 @@ int main(int argc, char** argv)
 	t2 = seconds ();
 
     /* print statistics */    
-    nFlops = (double) (x_max-2) * (double) (y_max-2) * T_MAX * 9.0;
+    nFlops = (double) (x_max-2) * (double) (y_max-2) * (double)(z_max - 2) * T_MAX * 13.0;
     printf ("FLOPs in stencil code:      %e\n", nFlops);    
 	printf ("Time spent in stencil code: %f\n", t2 - t1);
 	printf ("Performance in GFlop/s:     %f\n", nFlops / (1e9 * (t2 -t1)));

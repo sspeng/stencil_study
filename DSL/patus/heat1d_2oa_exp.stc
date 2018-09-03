@@ -3,7 +3,7 @@ stencil Heat1D2oa (double grid A(0 .. x_max+1))
 
 	domainsize = (1 .. x_max);
 
-  iterate while t < 10000;
+  iterate while t < 10;
 
   //du/dt = k * (d2u/d2x) 
   // Explicit method, du/dt is forward difference, rest is central

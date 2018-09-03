@@ -1,0 +1,15 @@
+Optimal parameter configuration found:
+10000 1000 5000 304 2 4
+
+Timing information for the optimal run:
+0.7538054407551439
+
+Program output of the optimal run:
+Flops / stencil call:  10
+Stencil computations:  250000000
+Bytes transferred:     4008801600
+Total Flops:           2500000000
+Seconds elapsed:       0.136959
+Performance:           18.253628 GFlop/s
+Bandwidth utilization: 29.270069 GB/s
+260226987.000000

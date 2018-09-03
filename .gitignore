@@ -1,1 +1,3 @@
 **/target
+**/*.i
+**/*_pochoir.cpp

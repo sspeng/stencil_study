@@ -23,19 +23,20 @@
  *********************************************************************************
  */
 /*
- * Reference for heat two-dimensional 4th order accurate (spatial) explicit method
+ * Reference for heat three-dimensional 4th order accurate (spatial) explicit method
  *
- * Original equation: U_t = U_xx + U_yy
+ * Original equation: U_t = U_xx + U_yy + U_zz
  * Solved by: u(t+1,0) = u(t, x, y)
- *  + (-1/12u(t,x-2,y) + 4/3u(t,x-1,y) - 5/2(t,x,y) + 4/3u(t,x+1,y) - 1/12u(t,x+2,y))
- *  + (-1/12u(t,x,y-2) + 4/3u(t,x,y-1) - 5/2(t,x,y) + 4/3u(t,x,y+1) - 1/12u(t,x,y+2))
+ *  + (-1/12u(t,x-2,y,z) + 4/3u(t,x-1,y,z) - 5/2(t,x,y,z) + 4/3u(t,x+1,y,z) - 1/12u(t,x+2,y,z))
+ *  + (-1/12u(t,x,y-2,z) + 4/3u(t,x,y-1,z) - 5/2(t,x,y,z) + 4/3u(t,x,y+1,z) - 1/12u(t,x,y+2,z))
+ *  + (-1/12u(t,x,y,z-2) + 4/3u(t,x,y,z-1) - 5/2(t,x,y,z) + 4/3u(t,x,y,z+1) - 1/12u(t,x,y,z+2))
  *
  *
  * @author Brandon Nesterenko (bnestere@uccs.edu)
- * @date 9-01-2018
+ * @date 9-04-2018
  */
 
-/* Test bench - 2D heat equation, Non-periodic version */
+/* Test bench - 3D heat equation, Non-periodic version */
 #include <cstdio>
 #include <cstddef>
 #include <iostream>
@@ -70,13 +71,13 @@ void check_result(int t, int i, double a, double b)
 
 }
 
-Pochoir_Boundary_2D(heat_bv_2D, arr, t, i,j)
+Pochoir_Boundary_3D(heat_bv_3D, arr, t, i,j,k)
     double val;
 
     if(t%2 == 0) {
-      val = 1. + i*0.1 + j*0.01;
+      val = 1. + i*0.1 + j*0.01 + k*0.001;
     } else {
-      val = 2. + i*0.1 + j*0.01;
+      val = 2. + i*0.1 + j*0.01 + k*0.001;
     }
 
   return val;
@@ -102,37 +103,40 @@ int main(int argc, char * argv[])
 
     printf("N_SIZE = %d, M_SIZE = %d, O_SIZE = %d, T_SIZE = %d\n", N_SIZE, M_SIZE, O_SIZE, T_SIZE);
 	/* data structure of Pochoir - row major */
-    Pochoir_Shape_2D heat_shape_2D[] = {{1, 0, 0}, {0,2,0}, {0, 1, 0}, {0,-1,0},{0,-2,0}, {0,0,2}, {0,0,1}, {0, 0, -1}, {0,0,-2}, {0,0,0}};
-	Pochoir_Array_2D(double) a(N_SIZE,M_SIZE);
-    Pochoir_2D heat_2D(heat_shape_2D);
+    Pochoir_Shape_3D heat_shape_3D[] = {{1, 0, 0, 0}, {0,2,0,0}, {0, 1, 0, 0}, {0,-1,0, 0},{0,-2,0,0}, {0,0,2,0}, {0,0,1,0}, {0, 0, -1,0}, {0,0,-2,0}, {0,0,0,-2}, {0,0,0,-1}, {0,0,0,1}, {0,0,0,2}, {0,0,0,0}};
+	Pochoir_Array_3D(double) a(N_SIZE,M_SIZE,O_SIZE);
+    Pochoir_3D heat_3D(heat_shape_3D);
 
     double sc1 = 1.0/12.0;
     double sc2 = 4.0/3.0;
     double sc3 = 5.0/2.0;
 
-    Pochoir_Kernel_2D(heat_2D_fn, t, i,j)
-      a(t+1, i, j) = a(t,i,j)
-        + 0.125 * (-sc1*a(t,i+2,j) + sc2*a(t,i+1,j) - sc3*a(t,i,j) + sc2*a(t,i-1,j) - sc1*a(t,i-2,j))
-        + 0.125 * (-sc1*a(t,i,j+2) + sc2*a(t,i,j+1) - sc3*a(t,i,j) + sc2*a(t,i,j-1) - sc1*a(t,i,j-2));
+    Pochoir_Kernel_3D(heat_3D_fn, t, i,j,k)
+      a(t+1, i, j,k) = a(t,i,j,k)
+        + 0.125 * (-sc1*a(t,i+2,j,k) + sc2*a(t,i+1,j,k) - sc3*a(t,i,j,k) + sc2*a(t,i-1,j,k) - sc1*a(t,i-2,j,k))
+        + 0.125 * (-sc1*a(t,i,j+2,k) + sc2*a(t,i,j+1,k) - sc3*a(t,i,j,k) + sc2*a(t,i,j-1,k) - sc1*a(t,i,j-2,k))
+        + 0.125 * (-sc1*a(t,i,j,k+2) + sc2*a(t,i,j,k+1) - sc3*a(t,i,j,k) + sc2*a(t,i,j,k-1) - sc1*a(t,i,j,k-2));
     Pochoir_Kernel_End
 
-    a.Register_Boundary(heat_bv_2D);
-    heat_2D.Register_Array(a);
+    a.Register_Boundary(heat_bv_3D);
+    heat_3D.Register_Array(a);
 
 	for (int i = 0; i < N_SIZE; ++i) {
     for(int j = 0; j < M_SIZE; ++j) {
-      a(0,i,j) = 1. + i*0.1 + j*0.01;
-      a(1,i,j) = 2. + i*0.1 + j*0.01;
+      for(int k = 0; k < O_SIZE; ++k) {
+        a(0,i,j,k) = 1. + i*0.1 + j*0.01 + k*0.001;
+        a(1,i,j,k) = 2. + i*0.1 + j*0.01 + k*0.001;
+      }
     }
 	} 
   double t1, t2;
 
 #if 1
   t1 = seconds();
-  heat_2D.Run(T_SIZE, heat_2D_fn);
+  heat_3D.Run(T_SIZE, heat_3D_fn);
   t2 = seconds();
 
-    double nflops = (double) (N_SIZE - 4) * (double) (M_SIZE - 4) * T_SIZE * 22.0;
+    double nflops = (double) (N_SIZE - 4) * (double) (M_SIZE - 4) * (double)(O_SIZE - 4) * T_SIZE * 33.0;
   cout << "FLOPs in stencil code: " << nflops << endl;
 	cout << "Time spent in stencil coe: " << t2-t1 << " s" << endl;
   cout << "Performance in GFLOP/s: " << nflops / (1e9 * (t2-t1)) << endl;

@@ -59,9 +59,17 @@ void check_result(int t, int i, double a, double b)
 }
 
 Pochoir_Boundary_3D(heat_bv_3D, arr, t, i,j,k)
-    //return t;
+  double val;
 
-    return 0;
+  if(t%2 == 0) {
+    val = 1. + i*0.1 + j*0.01 + k*0.001;
+  } else {
+    val = 2. + i*0.1 + j*0.01 + k*0.001;
+  }
+
+return val;
+
+
 Pochoir_Boundary_End
 
 int main(int argc, char * argv[])
@@ -76,9 +84,9 @@ int main(int argc, char * argv[])
         printf("argc < 3, quit! \n");
         exit(1);
     }
-    N_SIZE = StrToInt(argv[1]);
-    M_SIZE = StrToInt(argv[2]);
-    O_SIZE = StrToInt(argv[3]);
+    N_SIZE = StrToInt(argv[1]) - 1;
+    M_SIZE = StrToInt(argv[2]) - 1;
+    O_SIZE = StrToInt(argv[3]) - 1;
     T_SIZE = StrToInt(argv[4]);
     printf("N_SIZE = %d, M_SIZE = %d, O_SIZE = %d, T_SIZE = %d\n", N_SIZE, M_SIZE, O_SIZE, T_SIZE);
 	/* data structure of Pochoir - row major */

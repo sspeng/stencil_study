@@ -57,14 +57,27 @@ void check_result(int t, int i, int j, double a, double b)
 	} else {
 		printf("a(%d, %d, %d) = %f, b(%d, %d, %d) = %f : FAILED!\n", t, i,j, a, t, i,j, b);
 	}
-
 }
 
-Pochoir_Boundary_2D(heat_bv_2D, arr, t, i,j)
-    //return t;
+#define mod(r, m) (( r) %( m) + (( r) <0)? (m) :0)
 
-    return 0;
+Pochoir_Boundary_2D(heat_bv_2D, a, t, i,j)
+  double val;
+
+  if(t%2 == 0) {
+    val = 1. + i*0.1 + j*0.01;
+  } else {
+    val = 2. + i*0.1 + j*0.01;
+  }
+
+  return val;
+
+    //return 0;
 Pochoir_Boundary_End
+
+void print_at_timestep(int t, int i, int j, Pochoir_Array_2D(double) *arr) {
+  printf("Arr[%d;%d,%d] = %f\n", t, i, j, arr->interior(t,i,j));
+}
 
 int main(int argc, char * argv[])
 {
@@ -72,16 +85,17 @@ int main(int argc, char * argv[])
 	int t;
 	struct timeval start, end;
     double min_tdiff = INF;
-    int N_SIZE = 0, T_SIZE = 0, M_SIZE=0;
+    int N_SIZE = 0, T_SIZE = 0, M_SIZE=0, O_SIZE=0;
 
     if (argc < 3) {
         printf("argc < 3, quit! \n");
         exit(1);
     }
-    N_SIZE = StrToInt(argv[1]);
-    M_SIZE = StrToInt(argv[2]);
-    T_SIZE = StrToInt(argv[3]);
-    printf("N_SIZE = %d, M_SIZE = %d, T_SIZE = %d\n", N_SIZE, M_SIZE, T_SIZE);
+    N_SIZE = StrToInt(argv[1])-1;
+    M_SIZE = StrToInt(argv[2])-1;
+    O_SIZE = StrToInt(argv[3]);
+    T_SIZE = StrToInt(argv[4]);
+    printf("N_SIZE = %d, M_SIZE = %d, O_SIZE = %d, T_SIZE = %d\n", N_SIZE, M_SIZE, O_SIZE, T_SIZE);
 	/* data structure of Pochoir - row major */
     Pochoir_Shape_2D heat_shape_2D[] = {{1, 0, 0}, {0, 1, 0}, {0,-1,0}, {0,0,1}, {0, 0, -1}, {0,0,0}};
 
@@ -89,6 +103,7 @@ int main(int argc, char * argv[])
 
 #if CHECK_RESULTS
     Pochoir_Array_2D(double) b(N_SIZE,M_SIZE);
+    //Pochoir_Array_2D(double) b(N_SIZE+2,M_SIZE+2);
     b.Register_Shape(heat_shape_2D);
 #endif
 
@@ -105,11 +120,13 @@ int main(int argc, char * argv[])
 
 	for (int i = 0; i < N_SIZE; ++i) {
     for(int j = 0; j < M_SIZE; ++j) {
-      a(0,i,j) = 1. + i*0.1 + j*0.01;
-      a(1,i,j) = 2. + i*0.1 + j*0.01;
+      a(0,i,j) = 1. + (i*0.1) + (j*0.01);
+      a(1,i,j) = 2. + (i*0.1) + (j*0.01);
 #if CHECK_RESULTS
-      b(0,i,j) = 1. + i*0.1 + j*0.01;
-      b(1,i,j) = 2. + i*0.1 + j*0.01;
+      //b(0,i+1,j+1) = a(0,i,j);
+      //b(1,i+1,j+1) = a(1,i,j);
+      b(0,i,j) = a(0,i,j);
+      b(1,i,j) = a(1,i,j);
 #endif
     }
 	} 
@@ -135,9 +152,8 @@ int main(int argc, char * argv[])
   for (int times = 0; times < TIMES; ++times) {
 
     for (int t = 0; t < T_SIZE; ++t) {
-      printf("t is %d\n", t);
-      for(int i = 1; i < N_SIZE+1; ++i) {
-        for (int j = 1; j < M_SIZE+1; ++j) {
+      for(int i = 1; i < N_SIZE-1; ++i) {
+        for (int j = 1; j < M_SIZE-1; ++j) {
 
           b.interior(t+1, i, j) = 0.125 * (
               b.interior(t, i+1, j) -2.0*b.interior(t,i,j) + b.interior(t, i-1,j) 
@@ -148,13 +164,20 @@ int main(int argc, char * argv[])
     }
   }
 
-  printf("Checking Results\n");
-  t = T_SIZE;
-  for (int i = 0; i < N_SIZE; ++i) {
-    for (int j = 0; j < M_SIZE; ++j) {
-      check_result(t, i, j, a.interior(t, i, j), b.interior(t, i+1, j+1));
-    } 
-  }
+//  printf("Checking Results\n");
+  t = T_SIZE - 1;
+//  for (int i = 0; i < N_SIZE; ++i) {
+//    for (int j = 0; j < M_SIZE; ++j) {
+//      check_result(t, i, j, a.interior(t, i, j), b.interior(t, i, j));
+//    } 
+//  }
+
+  //printf("a.interior(%d,%d,%d)=%f\n",t,2,2,a.interior(t,2,2));
+  print_at_timestep(t,1,1,&a);
+  print_at_timestep(t,2,2,&a);
+  print_at_timestep(t,3,3,&a);
+  //print_at_timestep(t,2+1,2+1,&b);
+  print_at_timestep(t,3,3,&b);
 #endif
 
 	return 0;

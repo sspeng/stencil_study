@@ -4,7 +4,8 @@
 #include <math.h>
 #include <sys/time.h>
 
-#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
+//#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
+#define IDX(i,j,k) (int) ((i)*(x_max*y_max) + (j)*(y_max) + (k))
 
 #if defined(_OPENMP)
 #	include <omp.h>
@@ -58,11 +59,11 @@ int main(int argc, char** argv)
 
     /* initialize the first timesteps */
 	#pragma omp parallel for private (k,j,i)
-    for (k = 0; k < y_max; k++)
+    for (i = 0; i < x_max; i++)
     {
       for (j = 0; j < y_max; j++)
       {
-        for (i = 0; i < x_max; i++)
+        for (k = 0; k < y_max; k++)
         {
           u_0_0[IDX(i,j,k)] = 1. + i*0.1 + j*0.01 + k*0.001;
           u_0_1[IDX(i,j,k)] = 2. + i*0.1 + j*0.01 + k*0.001;
@@ -79,11 +80,11 @@ int main(int argc, char** argv)
     for (t = 0; t < T_MAX; t++)
     {
 #pragma omp parallel for private(z,y,x)
-      for (z = 2; z < z_max - 2; z++)
+      for (x = 2; x < x_max - 2; x++)
       {
         for (y = 2; y < y_max - 2; y++)
         {
-          for (x = 2; x < x_max - 2; x++)
+          for (z = 2; z < z_max - 2; z++)
           {
             u_0_1[IDX(x, y,z)] = u_0_0[IDX(x, y,z)]
               + 0.125 * (-sc1*u_0_0[IDX(x+2,y,z)] + sc2*u_0_0[IDX(x+1, y,z)] -sc3*u_0_0[IDX(x,y,z)] + sc2*u_0_0[IDX(x-1, y,z)] -sc3*u_0_0[IDX(x-2,y,z)])

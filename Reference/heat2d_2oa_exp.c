@@ -95,6 +95,8 @@ int main(int argc, char** argv)
     printf ("FLOPs in stencil code:      %e\n", nFlops);    
 	printf ("Time spent in stencil code: %f\n", t2 - t1);
 	printf ("Performance in GFlop/s:     %f\n", nFlops / (1e9 * (t2 -t1)));
+
+  printf("Value is u_0_0[2,2]=%f, u_0_1[2,2]=%f\n", u_0_0[IDX(2,2)], u_0_1[IDX(2,2)]);
    
     /* clean up */
 	free (u_0_0);

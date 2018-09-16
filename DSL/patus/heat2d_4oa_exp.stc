@@ -11,13 +11,13 @@ stencil Heat1D2oa (double grid A(0 .. x_max+2, 0 .. y_max+2))
 	
 	operation
 	{
-    c1 = 1.0/12.0;
-    c2 = 4.0/3.0;
-    c3 = 5.0/2.0;
+    double c1 = 1.0/12.0;
+    double c2 = 4.0/3.0;
+    double c3 = 5.0/2.0;
 
     A[x,y; t+1] = 
       A[x,y;t] +
-      0.125 * ( -c1*a[x-2,y;t] + c2*a[x-1,y;t] - c3*a[x,y;t] + c2*a[x+1,y;t] - c1*a[x+2,y;t])
-      0.125 * ( -c1*a[x,y-2;t] + c2*a[x,y-1;t] - c3*a[x,y;t] + c2*a[x,y+1;t] - c1*a[x,y+2;t]);
+      0.125 * ( -c1*A[x-2,y;t] + c2*A[x-1,y;t] - c3*A[x,y;t] + c2*A[x+1,y;t] - c1*A[x+2,y;t])
+      0.125 * ( -c1*A[x,y-2;t] + c2*A[x,y-1;t] - c3*A[x,y;t] + c2*A[x,y+1;t] - c1*A[x,y+2;t]);
 	}
 }

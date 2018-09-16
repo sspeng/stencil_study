@@ -4,7 +4,9 @@
 #include <math.h>
 #include <sys/time.h>
 
-#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
+#define IDX(i,j,k) (int) ((i)*(x_max*y_max) + (j)*(y_max) + (k))
+//#define IDX(i,j,k) (int) ((i)+x_max*((j)+y_max*(k)))
+//#define IDX(i,j,k) (int) ( (z) + z_max * ((y) + y_max * (x))  )
 
 #if defined(_OPENMP)
 #	include <omp.h>
@@ -38,14 +40,15 @@ int main(int argc, char** argv)
 
 	if (argc != 5)
 	{
-		printf ("Wrong number of parameters.\n", argv[0]);
 		exit (-1);
 	}
 	
 	x_max = atoi (argv[1]);
 	y_max = atoi (argv[2]);
 	z_max = atoi (argv[3]);
-	T_MAX = atoi (argv[3]);
+	T_MAX = atoi (argv[4]);
+
+  printf("Allocating memory\n");
 
  
     /* allocate memory */
@@ -55,14 +58,16 @@ int main(int argc, char** argv)
     alpha = 1.f / (float) x_max;
     beta = 2.f / (float) y_max;
 
+
     /* initialize the first timesteps */
 	#pragma omp parallel for private (k,j,i)
-    for (k = 0; k < z_max; k++)
+    for (i = 0; i < x_max; i++)
     {
-		for (j = 0; j < y_max; j++)
-		{
-			for (i = 0; i < x_max; i++)
+      for (j = 0; j < y_max; j++)
+      {
+        for (k = 0; k < z_max; k++)
 			{
+        int idx = IDX(i,j,k);
 	        	u_0_0[IDX(i,j,k)] = 1. + i*0.1 + j*0.01 + k*0.001;
 	         	u_0_1[IDX(i,j,k)] = 2. + i*0.1 + j*0.01 + k*0.001;
 			}
@@ -75,17 +80,18 @@ int main(int argc, char** argv)
 	for (t = 0; t < T_MAX; t++)
 	{
 		#pragma omp parallel for private(z,y,x)
-		for (z = 1; z < z_max - 1; z++)
-      	{
-    		for (y = 1; y < y_max - 1; y++)
-    	 	{
-    			for (x = 1; x < x_max - 1; x++)
+    for (x = 1; x < x_max - 1; x++)
+    {
+      for (y = 1; y < y_max - 1; y++)
+      {
+        for (z = 1; z < z_max - 1; z++)
     			{
+            int idx = IDX(x,y,z);
                     u_0_1[IDX(x, y, z)] = u_0_0[IDX(x, y, z)] +
                         0.125 * (
-                            u_0_0[IDX(x+1, y, z)] -2*u_0_0[IDX(i,j,k)] + u_0_0[IDX(x-1, y, z)] +
-                            u_0_0[IDX(x, y+1, z)] -2*u_0_0[IDX(i,j,k)] + u_0_0[IDX(x, y-1, z)] +
-                            u_0_0[IDX(x, y, z+1)] -2*u_0_0[IDX(i,j,k)] + u_0_0[IDX(x, y, z-1)]
+                            u_0_0[IDX(x+1, y, z)] -2*u_0_0[IDX(x,y,z)] + u_0_0[IDX(x-1, y, z)] +
+                            u_0_0[IDX(x, y+1, z)] -2*u_0_0[IDX(x,y,z)] + u_0_0[IDX(x, y-1, z)] +
+                            u_0_0[IDX(x, y, z+1)] -2*u_0_0[IDX(x,y,z)] + u_0_0[IDX(x, y, z-1)]
                         );
     			}
     		}

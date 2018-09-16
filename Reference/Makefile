@@ -1,6 +1,8 @@
 CC=icc
 CFLAGS=-O3
+#LDFLAGS=-lm -fopenmp
 LDFLAGS=-lm -qopenmp
+#LDFLAGS=-lm 
 REF_TEST_DIR=#!date +%Y_%m_%d:%H_%M
 
 

@@ -18,7 +18,7 @@
 
 //#define WRITE_OUTPUT
 #define NONUMA
-#define IDX(i,j) ((i)+x_max*((j)))
+#define IDX(i,j) ((i)*x_max+((j)))
 
 #ifndef M_PI
 #	define M_PI 3.14159265358979323846

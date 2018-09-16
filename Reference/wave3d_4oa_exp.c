@@ -19,7 +19,7 @@
 #include <sys/time.h>
 
 #define NONUMA
-#define IDX(i,j,k) ((i)+x_max*((j)+y_max*(k)))
+#define IDX(i,j,k) (int) ((i)*(x_max*y_max) + (j)*(y_max) + (k))
 
 #ifndef M_PI
 #	define M_PI 3.14159265358979323846

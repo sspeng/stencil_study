@@ -1,3 +1,13 @@
+/*
+ * Reference for heat one-dimensional 4th order accurate (spatial) explicit method
+ *
+ * Original equation: U_tt = U_xx
+ * Solved by: u(t+1,0) = u(t,x)
+ *  + 0.125 * (-1/12u(t,x-2) + 4/3u(t,x-1) - 5/2(t,x) + 4/3u(t,x+1) - 1/12u(t,x+2))
+ *
+ * @author Brandon Nesterenko (bnestere@uccs.edu)
+ * @date 8-26-2018
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

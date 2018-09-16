@@ -1,3 +1,18 @@
+/*
+ * Reference for heat three-dimensional 2nd order accurate (spatial) explicit method
+ *
+ * Original equation: U_tt = U_xx + U_yy + U_zz
+ * Solved by: u(t+1,x,y,z) = u(t,x,y,z)
+ *  + 0.125 * (
+ *    u(t,x-1,y,z) - 2(t,x,y,z) + u(t,x+1,y,z)
+ *    u(t,x,y-1,z) - 2(t,x,y,z) + u(t,x,y+1,z)
+ *    u(t,x,y,z-1) - 2(t,x,y,z) + u(t,x,y,z+1)
+ *  )
+ *
+ *
+ * @author Brandon Nesterenko (bnestere@uccs.edu)
+ * @date 8-26-2018
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -5,8 +20,6 @@
 #include <sys/time.h>
 
 #define IDX(i,j,k) (int) ((i)*(x_max*y_max) + (j)*(y_max) + (k))
-//#define IDX(i,j,k) (int) ((i)+x_max*((j)+y_max*(k)))
-//#define IDX(i,j,k) (int) ( (z) + z_max * ((y) + y_max * (x))  )
 
 #if defined(_OPENMP)
 #	include <omp.h>

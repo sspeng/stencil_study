@@ -1,10 +1,23 @@
+/*
+ * Reference for heat two-dimensional 4th order accurate (spatial) explicit method
+ *
+ * Original equation: U_tt = U_xx + U_yy
+ * Solved by: u(t+1,x,y) = u(t,x,y)
+ *  + 0.125 * (
+ *    (-1/12u(t,x-2,y) + 4/3u(t,x-1,y) - 5/2(t,x,y) + 4/3u(t,x+1,y) - 1/12u(t,x+2,y))+
+ *    (-1/12u(t,x,y-2) + 4/3u(t,x,y-1) - 5/2(t,x,y) + 4/3u(t,x,y+1) - 1/12u(t,x,y+2))
+ *  )
+ *
+ * @author Brandon Nesterenko (bnestere@uccs.edu)
+ * @date 8-26-2018
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
 #include <sys/time.h>
 
-#define IDX(i,j) ((i)+x_max*((j)))
+#define IDX(i,j) ((i)*x_max + (j))
 
 #if defined(_OPENMP)
 #	include <omp.h>

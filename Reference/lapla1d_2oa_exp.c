@@ -2,11 +2,7 @@
  * Reference for laplacian one-dimensional 2nd order accurate (spatial) explicit method
  *
  * Original equation: U_xx = 0
- * Solved by: u(t+1,x) = alpha * u(t,x)
- *  + beta * (
- *    u(t,x+1) + u(t,x-1)
- *  )
- *
+ * Solved by: u(t+1,x) = (u(t,x) - u(t,x-1) - u(t,x+1))/2.0
  *
  * @author Brandon Nesterenko (bnestere@uccs.edu)
  * @date 8-26-2018
@@ -86,10 +82,7 @@ int main(int argc, char** argv)
 		#pragma omp parallel for private(z,y,x)
     for (x = 1; x < x_max - 1; x++)
     {
-      u_0_1[IDX(x)] = alpha * u_0_0[IDX(x)] +
-        beta * (
-            u_0_0[IDX(x+1)] + u_0_0[IDX(x-1)]
-            );
+      u_0_1[IDX(x)] = (u_0_0[IDX(x)] -u_0_0[IDX(x-1)] - u_0_0[IDX(x+1)])/2.0;
     }
 
     	float* tmp = u_0_0;
@@ -99,7 +92,7 @@ int main(int argc, char** argv)
 	t2 = seconds ();
 
     /* print statistics */    
-    nFlops = (double) (x_max-2) * T_MAX * 4.0;
+    nFlops = (double) (x_max-2) * T_MAX * 3.0;
     printf ("FLOPs in stencil code:      %e\n", nFlops);    
 	printf ("Time spent in stencil code: %f\n", t2 - t1);
 	printf ("Performance in GFlop/s:     %f\n", nFlops / (1e9 * (t2 -t1)));

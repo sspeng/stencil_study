@@ -23,7 +23,7 @@
  *********************************************************************************
  */
 
-/* Test bench - 3D heat equation, Non-periodic version */
+/* Test bench - 3D wave equation, 2nd order accurate; explicit */
 #include <cstdio>
 #include <cstddef>
 #include <iostream>
@@ -58,7 +58,7 @@ void check_result(int t, int i, double a, double b)
 
 }
 
-Pochoir_Boundary_3D(heat_bv_3D, arr, t, i,j,k)
+Pochoir_Boundary_3D(bv, arr, t, i,j,k)
   double val;
 
   if(t%2 == 0) {
@@ -76,55 +76,55 @@ int main(int argc, char * argv[])
 	int t;
 	struct timeval start, end;
     double min_tdiff = INF;
-    int N_SIZE = 0, T_SIZE = 0, M_SIZE=0, O_SIZE=0;
+    int N_SIZE = 0, M_SIZE, O_SIZE, T_SIZE = 0;
 
-    if (argc < 3) {
-        printf("argc < 3, quit! \n");
+    if (argc < 5) {
+        printf("argc < 5, quit! <x_max> <y_max> <z_max> <t_max> \n");
         exit(1);
     }
-    N_SIZE = StrToInt(argv[1]) - 1;
-    M_SIZE = StrToInt(argv[2]) - 1;
-    O_SIZE = StrToInt(argv[3]) - 1;
+    N_SIZE = StrToInt(argv[1]);
+    M_SIZE = StrToInt(argv[2]);
+    O_SIZE = StrToInt(argv[3]);
     T_SIZE = StrToInt(argv[4]);
     printf("N_SIZE = %d, M_SIZE = %d, O_SIZE = %d, T_SIZE = %d\n", N_SIZE, M_SIZE, O_SIZE, T_SIZE);
-	/* data structure of Pochoir - row major */
-    Pochoir_Shape_3D heat_shape_3D[] = {{1, 0, 0, 0}, {0, 1, 0,0}, {0,-1,0,0}, {0,0,1,0}, {0, 0, -1,0}, {0,0,0,1},{0,0,0,-1},{0,0,0,0}};
-    Pochoir_Array_3D(double) a(N_SIZE,M_SIZE,O_SIZE);
-    Pochoir_3D heat_3D(heat_shape_3D);
 
-    Pochoir_Kernel_3D(heat_3D_fn, t, i,j,k)
-	   a(t+1, i, j,k) = 0.125 * (
-         a(t, i+1, j,k) -2.0*a(t,i,j,k) + a(t, i-1,j,k) 
-         + a(t,i,j-1,k) -2.0*a(t,i,j,k) + a(t,i,j+1,k)
-         + a(t,i,j,k-1) -2.0*a(t,i,j,k) + a(t,i,j,k+1)
-         )
-     + a(t,i,j,k);
+	/* data structure of Pochoir - row major */
+    Pochoir_Shape_3D shape_3D[] = {{1, 0, 0, 0}, {0, 1, 0,0}, {0,-1,0,0}, {0,0,1,0}, {0, 0, -1,0}, {0,0,0,1}    ,{0,0,0,-1},{0,0,0,0},{-1,0,0,0}};
+    Pochoir_Array_3D(double) a(N_SIZE * M_SIZE * O_SIZE * T_SIZE);
+
+    Pochoir_3D wave_3D(shape_3D);
+
+    Pochoir_Kernel_3D(fn, t, i, j, k)
+      a(t+1,i,j,k) = (
+          a(t,i-1,j,k) - (2*a(t,i,j,k)) + a(t,i+1,j,k) +
+          a(t,i,j-1,k) - (2*a(t,i,j,k)) + a(t,i,j+1,k) +
+          a(t,i,j,k-1) - (2*a(t,i,j,k)) + a(t,i,j,k+1)
+          )
+        + (2*a(t,i,j,k)) - a(t,i,j,k);
     Pochoir_Kernel_End
 
-    a.Register_Boundary(heat_bv_3D);
-    heat_3D.Register_Array(a);
+    a.Register_Boundary(bv);
+    wave_3D.Register_Array(a);
 
     for (int i = 0; i < N_SIZE; ++i) {
-      for(int j = 0; j < M_SIZE; ++j) {
-        for(int k = 0; k < O_SIZE; ++k) {
-          a(0,i,j,k) = 1. + i*0.1 + j*0.01 + k*0.001;
-          a(1,i,j,k) = 2. + i*0.1 + j*0.01 + k*0.001;
+      for (int j = 0; j < M_SIZE; ++j) {
+        for (int k = 0; k < M_SIZE; ++k) {
+          a(0,i) = 1. + i*0.1 + j*0.01 + k*0.001;
+          a(1,i) = 2. + i*0.1 + j*0.01 + k*0.001;
         }
       }
     } 
-    double t1, t2;
+  double t1, t2;
 
-#if 1
   t1 = seconds();
-  heat_3D.Run(T_SIZE, heat_3D_fn);
+  wave_3D.Run(T_SIZE, fn);
   t2 = seconds();
 
-    double nflops = (double) (N_SIZE - 2) * (double) (M_SIZE - 2) * (double) (O_SIZE - 2) * T_SIZE * 13.0;
+    double nflops = (double) (N_SIZE - 2) * (double) (M_SIZE - 2) * (double) (O_SIZE-2) * T_SIZE * 14.0;
   cout << "FLOPs in stencil code: " << nflops << endl;
-	cout << "Time spent in stencil coe: " << t2-t1 << " s" << endl;
+	cout << "Time spent in stencil code: " << t2-t1 << " s" << endl;
   cout << "Performance in GFLOP/s: " << nflops / (1e9 * (t2-t1)) << endl;
 
-#endif
 
 	return 0;
 }

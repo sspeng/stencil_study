@@ -19,8 +19,14 @@ prepare:
 heat_2oa_exp: heat2d_2oa_exp heat3d_2oa_exp
 heat_4oa_exp: heat2d_4oa_exp heat3d_4oa_exp
 
-2oa_exp: heat_2oa_exp
-4oa_exp: heat_4oa_exp
+wave_2oa_exp: wave2d_2oa_exp wave3d_2oa_exp
+wave_4oa_exp: wave2d_4oa_exp wave3d_4oa_exp
+
+lapla_2oa_exp: lapla2d_2oa_exp lapla3d_2oa_exp
+lapla_4oa_exp: lapla2d_4oa_exp lapla3d_4oa_exp
+
+2oa_exp: heat_2oa_exp wave_2oa_exp lapla_2oa_exp
+4oa_exp: heat_4oa_exp wave_4oa_exp lapla_4oa_exp
 
 all: 2oa_exp 4oa_exp
 
@@ -32,18 +38,6 @@ clean:
 ##### 2nd Order Accurate Builds
 #####################################
 
-
-heat1d_2oa_exp : heat1d_2oa_exp.cpp
-	${CC} -o qheat_1D_NP ${OPT_FLAGS} heat1d_2oa_exp.cpp
-#	Phase-I compilation with debugging aid
-#	${CC} -o xheat1d_2oa_exp ${POCHOIR_DEBUG_FLAGS} heat1d_2oa_exp.cpp
-#   Phase-II compilation
-#	${CC} -o qheat_1D_NP ${OPT_FLAGS} heat1d_2oa_exp.cpp
-#	${ICC} -o qheat_1D_NP_gdb ${ICC_DEBUG_FLAGS} ${ICC_IGNORE} heat1d_2oa_exp_pochoir.cpp
-#	Phase-I compilation with debugging aid
-#  ${CC} -o xheat1d_2oa_exp ${POCHOIR_DEBUG_FLAGS} heat1d_2oa_exp.cpp
-#
-
 heat2d_2oa_exp : heat2d_2oa_exp.cpp prepare
 	rm -rf target/xheat2d_2oa_exp
 	${CC} -o target/xheat2d_2oa_exp ${OPT_FLAGS} heat2d_2oa_exp.cpp
@@ -51,6 +45,23 @@ heat2d_2oa_exp : heat2d_2oa_exp.cpp prepare
 heat3d_2oa_exp : heat3d_2oa_exp.cpp prepare
 	rm -rf target/xheat3d_2oa_exp
 	${CC} -o target/xheat3d_2oa_exp ${OPT_FLAGS} heat3d_2oa_exp.cpp
+
+wave2d_2oa_exp : wave2d_2oa_exp.cpp prepare
+	rm -rf target/xwave2d_2oa_exp
+	${CC} -o target/xwave2d_2oa_exp ${OPT_FLAGS} wave2d_2oa_exp.cpp
+
+wave3d_2oa_exp : wave3d_2oa_exp.cpp prepare
+	rm -rf target/xwave3d_2oa_exp
+	${CC} -o target/xwave3d_2oa_exp ${OPT_FLAGS} wave3d_2oa_exp.cpp
+
+lapla2d_2oa_exp : lapla2d_2oa_exp.cpp prepare
+	rm -rf target/xlapla2d_2oa_exp
+	${CC} -o target/xlapla2d_2oa_exp ${OPT_FLAGS} lapla2d_2oa_exp.cpp
+
+lapla3d_2oa_exp : lapla3d_2oa_exp.cpp prepare
+	rm -rf target/xlapla3d_2oa_exp
+	${CC} -o target/xlapla3d_2oa_exp ${OPT_FLAGS} lapla3d_2oa_exp.cpp
+
 
 
 #####################################
@@ -64,5 +75,21 @@ heat2d_4oa_exp : heat2d_4oa_exp.cpp prepare
 heat3d_4oa_exp : heat3d_4oa_exp.cpp prepare
 	rm -rf target/xheat3d_4oa_exp
 	${CC} -o target/xheat3d_4oa_exp ${OPT_FLAGS} heat3d_4oa_exp.cpp
+
+wave2d_4oa_exp : wave2d_4oa_exp.cpp prepare
+	rm -rf target/xwave2d_4oa_exp
+	${CC} -o target/xwave2d_4oa_exp ${OPT_FLAGS} wave2d_4oa_exp.cpp
+
+wave3d_4oa_exp : wave3d_4oa_exp.cpp prepare
+	rm -rf target/xwave3d_4oa_exp
+	${CC} -o target/xwave3d_4oa_exp ${OPT_FLAGS} wave3d_4oa_exp.cpp
+
+lapla2d_4oa_exp : lapla2d_4oa_exp.cpp prepare
+	rm -rf target/xlapla2d_4oa_exp
+	${CC} -o target/xlapla2d_4oa_exp ${OPT_FLAGS} lapla2d_4oa_exp.cpp
+
+lapla3d_4oa_exp : lapla3d_4oa_exp.cpp prepare
+	rm -rf target/xlapla3d_4oa_exp
+	${CC} -o target/xlapla3d_4oa_exp ${OPT_FLAGS} lapla3d_4oa_exp.cpp
 
 

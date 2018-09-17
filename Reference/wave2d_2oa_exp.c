@@ -98,16 +98,16 @@ int main(int argc, char** argv)
 
  
     /* allocate memory */
-    u_0_m1 = (float*) malloc (x_max * y_max * z_max * sizeof (float));
+    u_0_m1 = (float*) malloc (x_max * y_max * sizeof (float));
     if (u_0_m1 == NULL)
         return malloc_error ("u_0_m1");
-    u_0_0 = (float*) malloc (x_max * y_max * z_max * sizeof (float));
+    u_0_0 = (float*) malloc (x_max * y_max * sizeof (float));
     if (u_0_0 == NULL)
     {
         free (u_0_m1);
         return malloc_error ("u_0_0");
     }
-    u_0_1 = (float*) malloc (x_max * y_max * z_max * sizeof (float));
+    u_0_1 = (float*) malloc (x_max * y_max * sizeof (float));
     if (u_0_1 == NULL)
     {
         free (u_0_m1);
@@ -117,9 +117,9 @@ int main(int argc, char** argv)
 
     /* initialize the first timesteps */
 #ifdef NONUMA
-	memset (u_0_m1, 0, x_max * y_max * z_max * sizeof (float));
-	memset (u_0_0, 0, x_max * y_max * z_max * sizeof (float));
-	memset (u_0_1, 0, x_max * y_max * z_max * sizeof (float));
+	memset (u_0_m1, 0, x_max * y_max * sizeof (float));
+	memset (u_0_0, 0, x_max * y_max * sizeof (float));
+	memset (u_0_1, 0, x_max * y_max * sizeof (float));
 #endif
 
 	#pragma omp parallel for private (k,j,i)

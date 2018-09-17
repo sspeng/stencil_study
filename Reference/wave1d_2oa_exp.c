@@ -163,18 +163,6 @@ const float MIN = -1.f; const float MAX = 1.f;
 
       u_0_1[i] = (u_0_0[i-1]  - (2 * u_0_0[i]) + u_0_0[i+1])
         + (2*u_0_0[i]) - u_0_m1[i];
-
-
-      // Original 3d
-//      u_0_1[IDX(i,j,k)] =  c1 * u_0_0[IDX(i,j,k)] - u_0_m1[IDX(i,j,k)] +
-//        + c2 * (
-//            u_0_0[IDX(i+1,j,k)] + u_0_0[IDX(i-1,j,k)]+
-//            u_0_0[IDX(i,j+1,k)] + u_0_0[IDX(i,j-1,k)]+
-//            u_0_0[IDX(i,j,k+1)] + u_0_0[IDX(i,j,k-1)])
-//        + c3 * (
-//            u_0_0[IDX(i+2,j,k)] + u_0_0[IDX(i-2,j,k)]+
-//            u_0_0[IDX(i,j+2,k)] + u_0_0[IDX(i,j-2,k)]+
-//            u_0_0[IDX(i,j,k+2)] + u_0_0[IDX(i,j,k-2)]);
     }
 
 #ifdef WRITE_OUTPUT

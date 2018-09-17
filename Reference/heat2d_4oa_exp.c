@@ -90,9 +90,9 @@ int main(int argc, char** argv)
     for (t = 0; t < T_MAX; t++)
     {
 #pragma omp parallel for private(z,y,x)
-      for (y = 2; y < y_max - 2; y++)
+      for (x = 2; x < x_max - 2; x++)
       {
-        for (x = 2; x < x_max - 2; x++)
+        for (y = 2; y < y_max - 2; y++)
         {
           u_0_1[IDX(x, y)] = u_0_0[IDX(x, y)]
             + 0.125 * (-sc1*u_0_0[IDX(x+2,y)] + sc2*u_0_0[IDX(x+1, y)] -sc3*u_0_0[IDX(x,y)] + sc2*u_0_0[IDX(x-1, y)] -sc3*u_0_0[IDX(x-2,y)])

@@ -94,7 +94,7 @@ int main(int argc, char** argv)
       for (y = 2; y < y_max - 2; y++)
       {
         u_0_1[IDX(x,y)] = 
-          (sc1*u_0_0[IDX(x-2,y)] -  sc2*u_0_0[IDX(x-1,y)] + sc3* u_0_0[IDX(x,y)] - sc2*u_0_0[IDX(x+1,y)] + sc1*u_0_0[IDX(x+2,y)]);
+          (sc1*u_0_0[IDX(x-2,y)] -  sc2*u_0_0[IDX(x-1,y)] + sc3* u_0_0[IDX(x,y)] - sc2*u_0_0[IDX(x+1,y)] + sc1*u_0_0[IDX(x+2,y)])
           + (sc1*u_0_0[IDX(x,y-2)] -  sc2*u_0_0[IDX(x,y-1)] + sc3* u_0_0[IDX(x,y)] - sc2*u_0_0[IDX(x,y+1)] + sc1*u_0_0[IDX(x,y+2)]);
       }
     }

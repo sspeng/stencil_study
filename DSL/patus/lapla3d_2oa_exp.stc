@@ -1,19 +1,14 @@
-stencil Lap1D2oa (
-    double grid A(0 .. x_max+1, 0 .. y_max+1, 0 .. z_max+1),
-    double param alpha,
-    double param beta)
+stencil Lap2D2oa (double grid A(0 .. x_max+1, 0 .. y_max+1, 0 .. z_max+1)
 {
 	domainsize = (1 .. x_max, 1 .. y_max, 1 .. z_max);
-  iterate while t < 1000;
+  iterate while t < 100;
 	
 	operation 
 	{
 		A[x, y, z; t+1] =
-			alpha * A[x, y, z; t] +
-			beta * (
-				A[x+1, y, z; t] + A[x-1, y, z; t] +
-				A[x, y+1, z; t] + A[x, y-1, z; t] +
-				A[x, y, z+1; t] + A[x, y, z-1; t]
-			);
+      (A[x,y,z;t] 
+      - A[x-1,y,z;t] - A[x+1,y,z;t]
+      - A[x,y-1,z;t] - A[x,y+1,z;t]
+      - A[x,y,z-1;t] - A[x,y,z+1;t])/6.0;
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Reference for heat one-dimensional 2nd order accurate (spatial) explicit method
  *
- * Original equation: U_tt = U_xx
+ * Original equation: U_t = U_xx
  * Solved by: u(t+1,x) = u(t,x)
  *  + 0.125 * (u(t,x-1) - 2(t,x) + u(t,x+1))
  *

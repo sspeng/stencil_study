@@ -1,7 +1,7 @@
 /*
  * Reference for heat three-dimensional 2nd order accurate (spatial) explicit method
  *
- * Original equation: U_tt = U_xx + U_yy + U_zz
+ * Original equation: U_t = U_xx + U_yy + U_zz
  * Solved by: u(t+1,x,y,z) = u(t,x,y,z)
  *  + 0.125 * (
  *    u(t,x-1,y,z) - 2(t,x,y,z) + u(t,x+1,y,z)

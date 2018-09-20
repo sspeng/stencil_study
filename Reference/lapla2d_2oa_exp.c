@@ -1,7 +1,7 @@
 /*
  * Reference for laplacian two-dimensional 2nd order accurate (spatial) explicit method
  *
- * Original equation: U_xx = 0
+ * Original equation: U_xx + U_yy = 0
  * Solved by: u(t+1,x,y) = 
  *      (u(t,x,y) - u(t,x-1,y) - u(t,x+1,y) - u(t,x,y-1) u(t,x,y+1))/4.0
  *

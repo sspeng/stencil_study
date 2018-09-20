@@ -1,7 +1,7 @@
 /*
- * Reference for laplacian two-dimensional 4th order accurate (spatial) explicit method
+ * Reference for laplacian three-dimensional 4th order accurate (spatial) explicit method
  *
- * Original equation: U_xx = 0
+ * Original equation: U_xx + U_yy + U_zz = 0
  * Solved by: u(t+1,x) = 
  *    (1/12u(t,x-2,y,z) - 4/3u(t,x-1,y,z) + 5/2(t,x,y,z) - 4/3u(t,x+1,y,z) + 1/12u(t,x+2,y,z))
  *    (1/12u(t,x,y-2,z) - 4/3u(t,x,y-1,z) + 5/2(t,x,y,z) - 4/3u(t,x,y+1,z) + 1/12u(t,x,y+2,z))

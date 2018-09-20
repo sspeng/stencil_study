@@ -1,7 +1,7 @@
 /*
  * Reference for laplacian two-dimensional 4th order accurate (spatial) explicit method
  *
- * Original equation: U_xx = 0
+ * Original equation: U_xx + U_yy = 0
  * Solved by: u(t+1,x) = 
  *    (1/12u(t,x-2,y) - 4/3u(t,x-1,y) + 5/2(t,x,y) - 4/3u(t,x+1,y) + 1/12u(t,x+2,y))
  *    + (1/12u(t,x,y-2) - 4/3u(t,x,y-1) + 5/2(t,x,y) - 4/3u(t,x,y+1) + 1/12u(t,x,y+2))
